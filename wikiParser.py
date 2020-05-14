@@ -23,8 +23,8 @@ import sys
 import subprocess
 
 #set default encoding
-reload(sys)
-sys.setdefaultencoding('utf8')
+
+
 
 last_sec_title = ""  # last section title parsed
 header_title = ""  # last header (main section) title parsed
@@ -46,7 +46,7 @@ def main_parser(language, resource):
 
     global header_title  # used to concatenate sections and subsections titles
     lists = {}  # initialize dictionary
-    result = jsonpedia_convert(language, resource)  # result obtained from JSONpedia in form of a list of sections
+    result = jsonpedia_convert(language, resource.decode())  # result obtained from JSONpedia in form of a list of sections
     
     if result == []:  #if the result is empty, try again looking for page redirects
         new_resource = find_page_redirects(resource, language)
@@ -262,7 +262,7 @@ def jsonpedia_convert(language, resource):
                             '-r', resource, '-p', 'Structure', '-f', 'section'], stdout=subprocess.PIPE)
         pipe_output = proc.stdout.read()  #redirect the input into python variable
         proc.kill()  #kill the spawned process
-        sections = json.loads(pipe_output) #load the string as a python dict
+        sections = json.loads(pipe_output.decode("utf-8","ignore")) #load the string as a python dict
 
     #handle different errors
     except (IOError):
@@ -308,8 +308,8 @@ def find_page_redirects(res, lang):
     try:
         # spawn a new process that makes a call to the json wrapper, which creates the required
         # json for the given resource, then load the string into a dict using json.loads()
-        proc = subprocess.Popen(['java','-jar','jsonpedia_wrapper.jar','-l', language, 
-                            '-r', resource, '-p', 'Structure'], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(['java','-jar','jsonpedia_wrapper.jar','-l', lang,
+                            '-r', res, '-p', 'Structure'], stdout=subprocess.PIPE)
         pipe_output = proc.stdout.read()   #redirect the input into python variable
         proc.kill()  #kill the spawned process
         result = json.load(pipe_output)  #load the string as a python dict

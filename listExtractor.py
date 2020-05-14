@@ -56,7 +56,7 @@ def main():
     parser.add_argument('collect_mode',
                         help="'s' to specify a single Wikipedia page;\n'a' for all resources from a DBpedia class.\n ",
                         choices=['s', 'a'])
-    parser.add_argument('source', type=lambda s: unicode(s, sys.getfilesystemencoding()),
+    parser.add_argument('source', type=str,
                         help="Select resource to extract lists from. Options are:"
                             "\nSingle Wikipedia page (example: William_Gibson) "
                             "\nDBpedia ontology class (example: Writer)\n ")
@@ -75,13 +75,14 @@ def main():
 
     # start extracting lists from resources
     if args.collect_mode == 's':  # extract list information from a single resource
-        resource = args.source.encode('utf-8')  # apply utf-8 encoding
+        #resource = args.source.encode('utf-8')  # apply utf-8 encoding
+        resource = args.source.encode()
         resDict = wikiParser.main_parser(args.language, resource)  # create a dict representing the resource
             
         for key in resDict:  #print data present in the resDict
-            print key, ":", resDict[key]
-            print ''
-            
+            print(key, ":", resDict[key])
+            print('')
+
         ''' Decomment the line below to create a file inside a resources folder containing the dictionary'''
         utilities.createResFile(resDict, args.language, resource)
             
@@ -93,7 +94,7 @@ def main():
             #print rdf_type
 
         list_elems = 0  # Used to keep trace of the number of list elements extracted
-        for t in rdf_type:  # for each type found, look for a suitable mapping and apply it
+        for t in rdf_type: # for each type found, look for a suitable mapping and apply it
             list_elems += mapper.select_mapping(resDict, resource, args.language, t,
                                                 g)  # get number of elements extracted
             #print '>>>>>', t, list_elems
@@ -103,7 +104,7 @@ def main():
     elif args.collect_mode == 'a':  # extract lists from a class of resources from DBpedia ontology (e.g. 'Writer')
         if utilities.check_existing_class(args.source) == True: #Check if the domain has already been mapped (in settings.json)
             try:
-                print 'Fetching resources, please wait......'
+                print('Fetching resources, please wait......')
                 resources = utilities.get_resources(args.language, args.source)
                 res_num = len(resources)  # total number of resources
                 curr_num = 1  # current resource to be analyzed
@@ -111,14 +112,14 @@ def main():
                 print("Could not find specified class of resources: " + args.source)
                 sys.exit(0)
         else: 
-            print '\nThis domain has not been mapped yet!'
-            print 'You can add a mapping for this domain using rulesGenerator.py and try again...'
+            print('\nThis domain has not been mapped yet!')
+            print('You can add a mapping for this domain using rulesGenerator.py and try again...')
             sys.exit(0)
         
         tot_extracted_elems = 0  # Used to keep track of the number of list elements extracted
         tot_elems = 0 # Used to keep track of total number of list elements
         total_res_failed = 0
-        print 'Completed! Found', str(res_num), 'resources.\nStarting extraction....\n' 
+        print('Completed! Found', str(res_num), 'resources.\nStarting extraction....\n')
         for res in resources:
             try:
                 print(res + " (" + str(curr_num) + " of " + str(res_num) + ")")

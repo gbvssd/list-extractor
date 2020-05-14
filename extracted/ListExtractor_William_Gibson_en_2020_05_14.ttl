@@ -1,0 +1,167 @@
+@prefix dbo: <http://dbpedia.org/ontology/> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://dbpedia.org/resource/%22_%7B%7BBurning_Chrome%7D%7D_%22> dbo:activeYear "1982-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BDisneyland_with_the_Death_Penalty%7D%7D_%22> dbo:activeYear "1993-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BDogfight_%28short_story%29%7D%7D_%22> dbo:activeYear "1985-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BFragments_of_a_Hologram_Rose%7D%7D_%22> dbo:activeYear "1977-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BHinterlands_%28short_story%29%7D%7D_%22> dbo:activeYear "1981-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BJohnny_Mnemonic%7D%7D_%22> dbo:activeYear "1981-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BNew_Rose_Hotel%7D%7D_%22> dbo:activeYear "1981-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BRed_Star%2C_Winter_Orbit%7D%7D_%22> dbo:activeYear "1983-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BSkinner%27s_Room%7D%7D_%22> dbo:activeYear "1991-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BThe_Belonging_Kind%7D%7D_%22> dbo:activeYear "1981-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BThe_Gernsback_Continuum%7D%7D_%22> dbo:activeYear "1981-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/%22_%7B%7BThe_Winter_Market%7D%7D_%22> dbo:activeYear "1985-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:Agency dbo:activeYear "2020-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/Agency_%28novel%29> dbo:activeYear "2020-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Agrippa dbo:activeYear "1992-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/Agrippa_%28A_Book_of_the_Dead%29> dbo:activeYear "1992-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Alien_3Adaptions dbo:activeYear "2018-01-01"^^xsd:gYear,
+        "2019-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/All_Tomorrow%27s_Parties> dbo:activeYear "1999-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/All_Tomorrow%27s_Parties_%28novel%29> dbo:activeYear "1999-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Archangel dbo:activeYear "2016-01-01"^^xsd:gYear,
+        "2017-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/Archangel_%28Gibson_comic%29> dbo:activeYear "2016-01-01"^^xsd:gYear,
+        "2017-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Blue_Ant_trilogy dbo:notableWork dbr:William_Gibson .
+
+dbr:Bridge_trilogy dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:Burning_Chrome dbo:activeYear "1986-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/Burning_Chrome_%28short_story_collection%29> dbo:activeYear "1986-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Count_Zero dbo:activeYear "1986-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:Distrust_That_Particular_Flavor dbo:activeYear "2012-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:Hubertus_Bigend dbo:author dbr:William_Gibson .
+
+dbr:Idoru dbo:activeYear "1996-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:Mona_Lisa_Overdrive dbo:activeYear "1988-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:Neuromancer dbo:activeYear "1984-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:Omni dbo:activeYear "1981-01-01"^^xsd:gYear,
+        "1982-01-01"^^xsd:gYear,
+        "1983-01-01"^^xsd:gYear,
+        "1985-01-01"^^xsd:gYear,
+        "1991-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+<http://dbpedia.org/resource/Omni_%28magazine%29> dbo:activeYear "1981-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Pattern_Recognition dbo:activeYear "2003-01-01"^^xsd:gYear ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/Pattern_Recognition_%28novel%29> dbo:activeYear "2003-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Peripheral_trilogy dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:Shadows_4 dbo:activeYear "1981-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Spook_Country dbo:activeYear "2007-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:Sprawl_trilogy dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:TBA dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:The_Difference_Engine dbo:activeYear "1990-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:The_Peripheral dbo:activeYear "2014-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+dbr:UnEarth_3 dbo:activeYear "1977-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Universe_11 dbo:activeYear "1981-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Vancouver dbo:activeYear "1985-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Virtual_Light dbo:activeYear "1993-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+
+<http://dbpedia.org/resource/Wired_%28magazine%29> dbo:activeYear "1993-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson .
+
+dbr:Zero_History dbo:activeYear "2010-01-01"^^xsd:gYear ;
+    dbo:author dbr:William_Gibson ;
+    dbo:notableWork dbr:William_Gibson .
+

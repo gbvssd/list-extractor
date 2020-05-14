@@ -18,7 +18,7 @@ functions to generate triples.
 
 '''
 
-import urllib2
+import urllib.request
 import json
 import re
 import rdflib
@@ -96,8 +96,8 @@ def select_mapping(resDict, res, lang, res_class, g):
 
             except NameError:  #key not found(predefined mappers)
                 if domain not in CUSTOM_MAPPERS.keys():
-                    print "Cannot find the domain's mapper function!!"
-                    print 'You can add a mapper function for this mapping using rulesGenerator.py and try again...\n'
+                    print("Cannot find the domain's mapper function!!")
+                    print('You can add a mapper function for this mapping using rulesGenerator.py and try again...\n')
                     sys.exit(1)
 
                 else:
@@ -111,20 +111,21 @@ def select_mapping(resDict, res, lang, res_class, g):
         
                 for dk in domain_keys:  # search for resource keys related to the selected domain
                     # if the section hasn't been mapped yet and the title match, apply domain related mapping
-                    dk = dk.decode('utf-8') #make sure utf-8 mismatches don't skip sections 
+                    dk = dk.encode().decode('utf-8') #make sure utf-8 mismatches don't skip sections
                     if not mapped and re.search(dk, res_key, re.IGNORECASE):
                         try:
                             if is_custom_map_fn == False:
                                 #use the pre-defined mapper functions
                                 mapper = "map_" + domain.lower() + "(resDict[res_key], res_key, db_res, lang, g, 0)"
                                 res_elems += eval(mapper)  # calls the proper mapping for that domain and counts extracted elements
+                                print ("i'm finished")
                                 mapped = True  # prevents the same section to be mapped again
                             else:
                                 mapper = map_user_defined_mappings(domain, resDict[res_key], res_key, db_res, lang, g, 0)
                                 res_elems += mapper  # calls the proper mapping for that domain and counts extracted elements
                                 mapped = True  # prevents the same section to be mapped again
-                        except:
-                            print 'exception occured in resDict, skipping....'
+                        except SyntaxError:
+                            print('exception occured in resDict, skipping....')
 
     else:
         # print 'This domain has not been mapped yet!'
@@ -161,7 +162,7 @@ def map_user_defined_mappings(mapper_fn_name, elem_list, sect_name, res, lang, g
     try:
         mapper_settings = CUSTOM_MAPPERS[mapper_fn_name]
     except: #not found, skip the rest of the process
-        print 'Did not find', mapper_fn_name, 'in CUSTOM_MAPPERS!'
+        print('Did not find', mapper_fn_name, 'in CUSTOM_MAPPERS!')
         return 0
 
     for elem in elem_list:
@@ -170,7 +171,7 @@ def map_user_defined_mappings(mapper_fn_name, elem_list, sect_name, res, lang, g
             map_user_defined_mappings(mapper_fn_name, elem, sect_name, res, lang, g, elems)   # handle recursive lists
 
         else:
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             years = []
             if mapper_settings["years"] == "Yes": #extract years related to the resource.
                 years = month_year_mapper(elem)
@@ -207,8 +208,8 @@ def map_user_defined_mappings(mapper_fn_name, elem_list, sect_name, res, lang, g
                 if res_name:
                     elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                     res_name = res_name.replace(' ', '_')
-                    res_name = urllib2.quote(res_name)  #quoting res_name in proper format
-                    uri = dbr + res_name.decode('utf-8', errors='ignore')
+                    res_name = urllib.request.quote(res_name)  #quoting res_name in proper format
+                    uri = dbr + res_name
 
             if res_name == None and 2 in extractor_choices: #reference mapper was chosen
                 res_name = reference_mapper(elem)
@@ -222,24 +223,24 @@ def map_user_defined_mappings(mapper_fn_name, elem_list, sect_name, res, lang, g
                         res_name = list_elem_clean(res_name)
                         elem = elem.replace(res_name, "")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = res_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  #quoting res_name in proper format
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)  #quoting res_name in proper format
+                        uri = dbr + uri_name
 
             if res_name == None and 3 in extractor_choices: #quote mapper was chosen
                 res_name = quote_mapper(elem)
                 if res_name:
                     elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                     res_name = res_name.replace(' ', '_')
-                    res_name = urllib2.quote(res_name)  #quoting res_name in proper format
-                    uri = dbr + res_name.decode('utf-8', errors='ignore')
+                    res_name = urllib.request.quote(res_name)  #quoting res_name in proper format
+                    uri = dbr + res_name
 
 
             if res_name == None and 4 in extractor_choices: #general mapper was chosen
                 res_name = general_mapper(elem)
                 if (res_name and res_name != "" and res_name != res):
                         res_name = res_name.replace(' ', '_')
-                        res_name = urllib2.quote(res_name)  #quoting res_name in proper format
-                        uri = dbr + res_name.decode('utf-8', errors='ignore')
+                        res_name = urllib.request.quote(res_name)  #quoting res_name in proper format
+                        uri = dbr + res_name
 
             #if successfully found a triple, add that to the existing graph
             if uri and uri != "":
@@ -248,7 +249,7 @@ def map_user_defined_mappings(mapper_fn_name, elem_list, sect_name, res, lang, g
                 if years:
                     add_years_to_graph(g, uri, years)
 
-    if elems == 0: print 'Could not extract any elements. Try adding more extractors....'
+    if elems == 0: print('Could not extract any elements. Try adding more extractors....')
     return elems
 
 
@@ -275,15 +276,15 @@ def map_discography(elem_list, sect_name, res, lang, g, elems):
         else:
             year = month_year_mapper(elem) #map years present in the list
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = italic_mapper(elem)
             if res_name == None: res_name = quote_mapper(elem)
             
             if res_name:
                 elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                 res_name = res_name.replace(' ', '_')
-                res_name = urllib2.quote(res_name)  ###
-                uri = dbr + res_name.decode('utf-8', errors='ignore')
+                res_name = urllib.request.quote(res_name)  ###
+                uri = dbr + res_name
             
             else:
                 ref = reference_mapper(elem)  # look for resource references
@@ -297,15 +298,15 @@ def map_discography(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref, "")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
                 
                 else:  # no reference found, try general mapping (less accurate)
                     uri_name = general_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
             
             #add successfuly extracted triples into the graph
             if uri and uri != "":
@@ -341,15 +342,15 @@ def map_concert_tours(elem_list, sect_name, res, lang, g, elems):
         else:
             year = month_year_mapper(elem)
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = italic_mapper(elem)
             if res_name == None: res_name = quote_mapper(elem)
            
             if res_name:
                 elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                 res_name = res_name.replace(' ', '_')
-                res_name = urllib2.quote(res_name)
-                uri = dbr + res_name.decode('utf-8', errors='ignore')
+                res_name = urllib.request.quote(res_name)
+                uri = dbr + res_name
             
             else:
                 ref = reference_mapper(elem)  # look for resource references
@@ -363,15 +364,15 @@ def map_concert_tours(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref, "")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
                 
                 else:  # no reference found, try general mapping (less accurate)
                     uri_name = general_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
             
             #add successfuly extracted triples into the graph
             if uri and uri != "":
@@ -406,14 +407,14 @@ def map_alumni(elem_list, sect_name, res, lang, g, elems):
         
         else:
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = italic_mapper(elem)
             
             if res_name:
                 elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                 res_name = res_name.replace(' ', '_')
-                res_name = urllib2.quote(res_name) 
-                uri = dbr + res_name.decode('utf-8', errors='ignore')
+                res_name = urllib.request.quote(res_name)
+                uri = dbr + res_name
             
             else:
                 ref = reference_mapper(elem)  # look for resource references
@@ -427,15 +428,15 @@ def map_alumni(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref, "")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
                 
                 else:  # no reference found, try general mapping (less accurate)
                     uri_name = general_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph            
             if uri and uri != "":
@@ -469,14 +470,14 @@ def map_programs_offered(elem_list, sect_name, res, lang, g, elems):
         
         else:
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = italic_mapper(elem)
             
             if res_name:
                 elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                 res_name = res_name.replace(' ', '_')
-                res_name = urllib2.quote(res_name)  
-                uri = dbr + res_name.decode('utf-8', errors='ignore')
+                res_name = urllib.request.quote(res_name)
+                uri = dbr + res_name
             
             else:
                 ref = reference_mapper(elem)  # look for resource references
@@ -490,15 +491,15 @@ def map_programs_offered(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref, "")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
                 
                 else:  # no reference found, try general mapping (less accurate)
                     uri_name = general_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph            
             if uri and uri != "":
@@ -537,7 +538,7 @@ def map_honors(elem_list, sect_name, res, lang, g, elems):
             if award_status == None: award_status = award_status_mapper(elem, lang)
             if award_status == None: award_status = "Winner" #if no information is found, assume winner.
 
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
 
             #remove status from the element
             elem = elem.replace("Winner","").replace("Won","").replace("Nominated","").replace("Nominee","")
@@ -562,15 +563,15 @@ def map_honors(elem_list, sect_name, res, lang, g, elems):
                     ref = list_elem_clean(ref)
                     elem = elem.replace(ref, "")  #subtract reference part from list element, to facilitate further parsing
                     uri_name = ref.replace(' ', '_')
-                    uri_name = urllib2.quote(uri_name)  
-                    uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                    uri_name = urllib.request.quote(uri_name)
+                    uri = dbr + uri_name
             else:
                 uri_name = quote_mapper(elem)  #try finding awards in quotes
                 if uri_name == None: uri_name = general_mapper(elem)  # no reference found, try general mapping (less accurate
                 if (uri_name and uri_name != "" and uri_name != res):
                     uri_name = uri_name.replace(' ', '_')
-                    uri_name = urllib2.quote(uri_name)  
-                    uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                    uri_name = urllib.request.quote(uri_name)
+                    uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph            
             if uri and uri != "":
@@ -610,15 +611,14 @@ def map_staff(elem_list, sect_name, res, lang, g, elems):
         
         else:
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = italic_mapper(elem)
             
             if res_name:
                 elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                 res_name = res_name.replace(' ', '_')
-                res_name = urllib2.quote(res_name)  ###
-                uri = dbr + res_name.decode('utf-8', errors='ignore')
-            
+                res_name = urllib.request.quote(res_name)  ###
+                uri = dbr + res_name
             else:
                 ref = reference_mapper(elem)  # look for resource references
                 if ref:  # current element contains a reference
@@ -631,15 +631,15 @@ def map_staff(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref, "")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
                 
                 else:  # no reference found, try general mapping (less accurate)
                     uri_name = general_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph                
             if uri and uri != "":
@@ -672,7 +672,7 @@ def map_other_person_details(elem_list, sect_name, res, lang, g, elems):
         
         else:
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = italic_mapper(elem)
             
             other_details = None
@@ -688,15 +688,15 @@ def map_other_person_details(elem_list, sect_name, res, lang, g, elems):
             if res_name:
                 elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                 res_name = res_name.replace(' ', '_')
-                res_name = urllib2.quote(res_name)  
-                uri = dbr + res_name.decode('utf-8', errors='ignore')
+                res_name = urllib.request.quote(res_name)
+                uri = dbr + res_name
             
             else:
                 uri_name = quote_mapper(elem)
                 if (uri_name and uri_name != "" and uri_name != res):
                     uri_name = uri_name.replace(' ', '_')
-                    uri_name = urllib2.quote(uri_name)  
-                    uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                    uri_name = urllib.request.quote(uri_name)
+                    uri = dbr + uri_name
 
                 ref = None
                 if uri == None: ref = reference_mapper(elem)  # look for resource references
@@ -710,15 +710,15 @@ def map_other_person_details(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref, "")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  ###
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)  ###
+                        uri = dbr + uri_name
 
                 else:  # no reference found, try general mapping (less accurate)
                     uri_name = general_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  ###
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)  ###
+                        uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph
             if uri and uri != "":
@@ -753,7 +753,7 @@ def map_career(elem_list, sect_name, res, lang, g, elems):
         else:
             year = month_year_mapper(elem)            
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
 
             other_details = None
             for other_type in CAREER[lang]:
@@ -771,10 +771,10 @@ def map_career(elem_list, sect_name, res, lang, g, elems):
             if uri_name == None or uri_name == res: uri_name = general_mapper(elem)
             if (uri_name and uri_name != "" and uri_name != res):
                 uri_name = uri_name.replace(' ', '_')
-                uri_name = urllib2.quote(uri_name)  ###
-                uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                uri_name = urllib.request.quote(uri_name)  ###
+                uri = dbr + uri_name
 
-            #add successfuly extracted triples into the graph            
+            #add successfully extracted triples into the graph
             if uri and uri != "":
                 g.add((rdflib.URIRef(uri), dbo[p], res))
                 elems += 1
@@ -784,20 +784,20 @@ def map_career(elem_list, sect_name, res, lang, g, elems):
 
 
 def map_filmography(elem_list, sect_name, res, lang, g, elems):
-    '''Handles lists related to filmography inside a section containing a match with ``FILMOGRAPHY``.
+    """Handles lists related to filmography inside a section containing a match with ``FILMOGRAPHY``.
 
     It constructs RDF statements about the movie title, it release year and type (``Film``, ``TV show``, ``Cartoon``..)
     and which part the current resource took in it (``director``, ``actor``, ...)
-    
+
     :param elem_list: list of elements to be mapped.
     :param sect_name: section name, used to reconcile literary genre.
     :param res: current resource.
     :param lang: resource language.
     :param g: RDF graph to be constructed.
     :param elems: a counter to keep track of the number of list elements extracted.
-    
+
     :return: number of list elements extracted.
-    '''
+    """
     film_particip = filmpart_mapper(sect_name, lang)  # applied to every list element of the section, default:starring
     filmography_type = filmtype_mapper(sect_name, lang)  #same as above
     for elem in elem_list:
@@ -808,22 +808,22 @@ def map_filmography(elem_list, sect_name, res, lang, g, elems):
         else:
             year = month_year_mapper(elem)
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = italic_mapper(elem)  # Try to extract italic formatted text (more precise)
             
             if res_name:
                 elem = elem.replace(res_name, "")  #delete occurence of matched text for further extraction
                 res_name = res_name.replace(' ', '_')
-                res_name = urllib2.quote(res_name)
-                uri = dbr + res_name.decode('utf-8', errors='ignore')
+                res_name = urllib.request.quote(res_name)
+                uri = dbr + res_name
             
             else:  #if unsuccessful, apply general mapping (lower accuracy)
                 uri_name = quote_mapper(elem)  #try finding names in quotes
                 if uri_name == None: uri_name = general_mapper(elem)  # no reference found, try general mapping (less accurate
                 if (uri_name and uri_name != "" and uri_name != res):
                     uri_name = uri_name.replace(' ', '_')
-                    uri_name = urllib2.quote(uri_name)
-                    uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                    uri_name = urllib.request.quote(uri_name)
+                    uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph            
             if uri and uri != "":
@@ -862,13 +862,13 @@ def map_bibliography(elem_list, sect_name, res, lang, g, elems):
         else:
             uri = None
             year = month_year_mapper(elem)
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = italic_mapper(elem)
             if res_name:
                 elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                 res_name = res_name.replace(' ', '_')
-                res_name = urllib2.quote(res_name)  
-                uri = dbr + res_name.decode('utf-8', errors='ignore')
+                res_name = urllib.request.quote(res_name)
+                uri = dbr + res_name
             
             else:
                 ref = reference_mapper(elem)  # look for resource references
@@ -883,16 +883,16 @@ def map_bibliography(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref,"")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
                 
                 else:
                     uri_name = quote_mapper(elem)  #try finding awards in quotes
                     if uri_name == None or uri_name == res: uri_name = general_mapper(elem)  # no reference found, try general mapping (less accurate
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph            
             if uri and uri != "":
@@ -927,17 +927,17 @@ def map_band_members(elem_list, sect_name, res, lang, g, elems):
     for elem in elem_list:
         if type(elem) == list:  # for nested lists (recursively call this function)
             elems += 1
-            map_members(elem, sect_name, res, lang, g, elems)
+            map_band_members(elem, sect_name, res, lang, g, elems)
 
         else:
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = italic_mapper(elem)
             if res_name:
                 elem = elem.replace(res_name, "")  #delete resource name found from element for further mapping
                 res_name = res_name.replace(' ', '_')
-                res_name = urllib2.quote(res_name)  
-                uri = dbr + res_name.decode('utf-8', errors='ignore')
+                res_name = urllib.request.quote(res_name)
+                uri = dbr + res_name
             
             else:
                 ref = reference_mapper(elem)  # look for resource references
@@ -953,15 +953,15 @@ def map_band_members(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref,"")  #subtract reference part from list element to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
                 
                 else:  # no reference found, try general mapping (less accurate)
                     uri_name = general_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph
             if uri and uri != "":
@@ -1030,7 +1030,7 @@ def map_contributors(elem_list, sect_name, res, lang, g, elems):
                 elem = elem.strip()
 
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             
             if True:
                 ref = reference_mapper(elem)  # look for resource references
@@ -1046,15 +1046,15 @@ def map_contributors(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref,"")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
 
                 else:  # no reference found, try general mapping (less accurate)
                     uri_name = general_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph 
             if uri and uri != "":
@@ -1126,7 +1126,7 @@ def map_other_literature_details(elem_list, sect_name, res, lang, g, elems):
 
 
             uri = None
-            elem = elem.encode('utf-8')  # apply utf-8 encoding
+            #elem = elem.encode('utf-8')  # apply utf-8 encoding
             
             if True:
                 ref = reference_mapper(elem)  # look for resource references
@@ -1144,23 +1144,23 @@ def map_other_literature_details(elem_list, sect_name, res, lang, g, elems):
                         ref = list_elem_clean(ref)
                         elem = elem.replace(ref,"")  #subtract reference part from list element, to facilitate further parsing
                         uri_name = ref.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
 
                 elif (ref is not None):  # no reference found, try general mapping (less accurate)
                     uri_name = quote_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
                         map_failed = False
 
                 if map_failed:  # no reference found, try general mapping (less accurate)
                     uri_name = general_mapper(elem)
                     if (uri_name and uri_name != "" and uri_name != res):
                         uri_name = uri_name.replace(' ', '_')
-                        uri_name = urllib2.quote(uri_name)  
-                        uri = dbr + uri_name.decode('utf-8', errors='ignore')
+                        uri_name = urllib.request.quote(uri_name)
+                        uri = dbr + uri_name
 
             #add successfuly extracted triples into the graph
             if uri and uri != "":
@@ -1227,7 +1227,7 @@ def add_years_to_graph(g, uri, year, year_ontology = {}):
                     g.add((rdflib.URIRef(uri), dbo[y_ontology['activeYearsEndDate']], rdflib.Literal(y[1], datatype=rdflib.XSD.gYear)))
 
     except:
-        print 'Year exception! Skipping...'
+        print('Year exception! Skipping...')
         raise
     return
 
@@ -1314,7 +1314,7 @@ def month_year_mapper(list_elem):
             month_present = True
 
     #regex for finding out whether the date consists of a time period or a single year.
-    period_regex = ur'(?:\(?\d{1,2}\^)?\s?\d{4}\s?(?:–|-)\s?(?:\d{1,2}\^)?\s?\d{4}(?:\))?'  
+    period_regex = r'(?:\(?\d{1,2}\^)?\s?\d{4}\s?(?:–|-)\s?(?:\d{1,2}\^)?\s?\d{4}(?:\))?'
 
     if re.search(period_regex, list_elem, flags=re.IGNORECASE):
         period_dates = True
@@ -1333,7 +1333,7 @@ def month_year_mapper(list_elem):
         if len(match_num) == 0: return year_mapper(list_elem)
         
         for y in match_num:   #split start and end year
-            year = re.split(ur'\s?[–-]\s?', y)
+            year = re.split(r'\s?[–-]\s?', y)
             years.append([year[0], year[1]])
         
         for x in match_num:
@@ -1483,14 +1483,14 @@ def sentence_splitter(elem,word,lang):
                 ref = list_elem_clean(ref)
                 elem = elem.replace(ref, "")  #subtract reference part from list element, to facilitate further parsing
                 uri_name = ref.replace(' ', '_')
-                uri_name = urllib2.quote(uri_name).decode('utf-8', errors='ignore')
+                uri_name = urllib.request.quote(uri_name)
                 entity = uri_name
 
         #no reference found; go ahead with the general mapping, which might be inaccurate
         #comment the below else case for more precise triples.
         else: 
             entity = entity.replace("{{","").replace("}}","").replace("\'\'","").strip().replace(" ","_")
-            entity = urllib2.quote(entity).decode('utf-8', errors='ignore')
+            entity = urllib.request.quote(entity)
 
     return entity
 
@@ -1531,9 +1531,9 @@ def lookup_call(keyword):
     base_req = 'http://lookup.dbpedia.org/api/search/PrefixSearch?MaxHits=1&QueryString='
     req = base_req + str(keyword)
     try:
-        call = urllib2.Request(req)
+        call = urllib.request.Request(req)
         call.add_header('Accept', 'application/json')
-        resp = urllib2.urlopen(call)
+        resp = urllib.request.urlopen(call)
         answer = resp.read()
         parsed_ans = json.loads(answer)
     
@@ -1553,11 +1553,11 @@ def wikidataAPI_call(res, lang):
     :return: answer in json format.
     '''
 
-    enc_res = urllib2.quote(res)  # then encode the string to be used in a URL
+    enc_res = urllib.request.quote(res)  # then encode the string to be used in a URL
     req = 'https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&search=' + enc_res + '&language=' + lang
     try:
-        call = urllib2.Request(req)
-        resp = urllib2.urlopen(call)
+        call = urllib.request.Request(req)
+        resp = urllib.request.urlopen(call)
         answer = resp.read()
         parsed_ans = json.loads(answer)
         result = parsed_ans['search']
@@ -1565,7 +1565,7 @@ def wikidataAPI_call(res, lang):
             return None
         uri = result[0]['concepturi']
     
-    except urllib2.URLError:  # sometimes the host can refuse too many connections and returns a socket error
+    except urllib.request.URLError:  # sometimes the host can refuse too many connections and returns a socket error
         time.sleep(5)  #wait 5 seconds and then retry
         print("retrying Wikidata API call...")
         wikidataAPI_call(res, lang)

@@ -48,7 +48,7 @@ def main():
                                     formatter_class = argparse.RawTextHelpFormatter,
                                     usage="rulesGenerator.py [--help] collection_mode resource language "
                                     "\nUse rulesGenerator.py -h for more details.\n ")
-    print 'Loading settings file....'
+    print('Loading settings file....')
 
     #initialize the dictionaries with the saved settings
     settings = load_settings()  #initializes mapping rules
@@ -64,7 +64,7 @@ def main():
                   "5. Show custom mapper functions\n" \
                   "0. exit" \
                   "\nYour option: "
-    print ''
+    print('')
 
     #option parser; decides the flow of the program according to what user wants to do.
     while True:
@@ -84,11 +84,12 @@ def main():
             elif run == 0:
                 sys.exit(0)
             else: 
-                print 'Invalid option! \n'
+                print('Invalid option! \n')
                 continue
-            raw_input()
+            input()
         #if user gives any other input, loop the prompt.
-        except SyntaxError: print 'Invalid option! \n'
+        except SyntaxError:
+            print('Invalid option! \n')
 
 
 def show_mappings(settings):
@@ -99,28 +100,30 @@ def show_mappings(settings):
     :return: void.
     '''
     mappings = settings["MAPPING"]  #load the default mapping rules
-    print 'Following are the classes whose mappings exist:'
-    print 'Format: Ontology Class : \n    [ List of mapper functions ]\n'
-    
+    print('Following are the classes whose mappings exist:')
+    print('Format: Ontology Class : \n    [ List of mapper functions ]\n')
+
     #prints all the existing mapping rules
     for key in mappings.keys():
-        print '   ', key, ':'
-        print '   ', '-' * (len(key)+2), "\n"
+        print('   ', key, ':')
+        print('   ', '-' * (len(key) + 2), "\n")
         for func in mappings[key]:
-            print '       ', func
-        print '\n'
+            print('       ', func)
+        print('\n')
+
 
 def show_mapper_functions():
     ''' Shows available mapper functions.
 
     :return: void.
     '''
-    print 'Available mapper functions (See mapping_rules.py for details):\n'
-    
+    print('Available mapper functions (See mapping_rules.py for details):\n')
+
     #prints all the existing mapper functions (including in-built and user defined)
     for mapper in mappers:
-        print '   ', mapper
-    print ''
+        print('   ', mapper)
+    print('')
+
 
 def add_mapping_rule(settings):
     ''' The main method for adding `user defined mapping rules`.
@@ -134,50 +137,50 @@ def add_mapping_rule(settings):
     mappings = settings['MAPPING']  #load the default mapping rules
 
     #get the domain/class name
-    print '\nEnter Ontology Class (Domain) name/ Custom Name: '
-    class_name = raw_input().replace(" ","")
+    print('\nEnter Ontology Class (Domain) name/ Custom Name: ')
+    class_name = input().replace(" ","")
 
     #if an entry for the class already exists, determine whether to update the mapping rules
     #for the domain or not.
     if class_name in mappings.keys():
-        print 'A mapping with the given classname already exists:'
-        print '   ', class_name
+        print('A mapping with the given classname already exists:')
+        print('   ', class_name)
         for func in mappings[class_name]:
-            print '       ', func
-        print '\n Do you want to change the existing mapping?? (Y/N)'
-        
+            print('       ', func)
+        print('\n Do you want to change the existing mapping?? (Y/N)')
+
         #if user wants to update, remove the existing entry
-        opt = raw_input()
+        opt = input()
         if opt in ['Y', 'y', 'yes']:
             settings['MAPPING'].pop(class_name)
         else:
-            print 'Aborting....'
+            print('Aborting....')
             return
 
-    print 'Enter Mapping functions with the class (comma seperated):'
+    print('Enter Mapping functions with the class (comma seperated):')
     mapper_functions = []
 
     #get the mapper function user wants to associate with the domain and add those if the mapper function
     #exists, else throw an error message
-    map_str = raw_input().split(",")
+    map_str = input().split(",")
     for s in map_str:
         if s.strip().upper() in mappers:
             mapper_functions.append(s.strip().upper())  #adding mapper functions to the domain
     if len(mapper_functions) == 0:
-        print 'No matching mapper functions were found!\nAborting...'
+        print('No matching mapper functions were found!\nAborting...')
         return
     else:
-        print 'Following mapper functions were found!'
-        print mapper_functions,'\n'
-        opt = raw_input('Do you want to save this mapping? (Y/N): ')
+        print('Following mapper functions were found!')
+        print(mapper_functions, '\n')
+        opt = input('Do you want to save this mapping? (Y/N): ')
         if opt in ['Y', 'y', 'yes']:
             #saving the mapper functions with  associated domain
             settings['MAPPING'][class_name] = mapper_functions  
             dump_settings(settings)  #updating the `settings.json` file
-            print 'Mapping saved!!'
+            print('Mapping saved!!')
             return
         else:
-            print 'Mapping cancelled!!'
+            print('Mapping cancelled!!')
             return
 
 def add_mapper_fn():
@@ -190,18 +193,18 @@ def add_mapper_fn():
     '''
     global custom_mappers
     mapper_function = defaultdict(dict)
-    mapper_name = raw_input('Enter Name of Mapper Function: ').strip().upper()
+    mapper_name = input('Enter Name of Mapper Function: ').strip().upper()
     
     #check if the mapper function already exists
     if mapper_name in mappers:
         mapper_function = custom_mappers[mapper_name]
-        print mapper_name, 'already exists. Do you want to update it?(Y/N): '
-        if raw_input() not in ['Y', 'y', 'yes']:  #if user doesn't want to update; stop the process
+        print(mapper_name, 'already exists. Do you want to update it?(Y/N): ')
+        if input() not in ['Y', 'y', 'yes']:  #if user doesn't want to update; stop the process
             return
 
     #add the language and the section headers in that language 
-    lang = raw_input('Enter the language code: ')
-    headers = raw_input('Enter headers of the Wiki Page to map(comma seperated): ')
+    lang = input('Enter the language code: ')
+    headers = input('Enter headers of the Wiki Page to map(comma seperated): ')
     headers = [header.strip() for header in headers.split(',')]
 
     #select the extractor functions to be used for the element extraction
@@ -211,17 +214,17 @@ def add_mapper_fn():
                         "3. Quote Mapper\n" \
                         "4. General Mapper\n" \
                         "\nRefer docs for more information about extractors: "
-    extractors = raw_input(extractor_fn_str).split(',')
+    extractors = input(extractor_fn_str).split(',')
     #store the extractors to be used in form of an integer
     extractors = [int(extractor.strip()) for extractor in extractors]
 
     ontology_mappings = dict()
-    print '\nNow adding mapping properties (dbr:<property>) ....'
+    print('\nNow adding mapping properties (dbr:<property>) ....')
 
     #add the ontology classes/properties to be used in the RDF triples
     #assosiate an ontology class(value) with each key    
     #also, allow the erson to use a default property, which will be used in case a match isnt found
-    default_property = raw_input("Input the default key's value (Input None for no default mapping: ") 
+    default_property = input("Input the default key's value (Input None for no default mapping: ")
     if default_property in ["None","none","NONE"]:
         #in this case, the mapper will ignore this list element and triple wont be added
         ontology_mappings["default"]="None"  
@@ -231,20 +234,20 @@ def add_mapper_fn():
 
     while True:
         #add more ontology properties till user wants 
-        add_more = raw_input("Do you want to add more properties(Y/N): ")
+        add_more = input("Do you want to add more properties(Y/N): ")
         if add_more not in ['y', 'Y', 'yes', 'Yes']:
             break
         try:
             #add the properties int the ontology_mappings dictionary
-            key_value = raw_input("Input a key value pair (header:Property): ").split(":")
+            key_value = input("Input a key value pair (header:Property): ").split(":")
             key = key_value[0].strip()
             value = key_value[1].strip()
             ontology_mappings[key]=value
         except:
-            print 'Invalid entry!!'
-    
+            print('Invalid entry!!')
+
     #choose wether to extract time periods in the mapper function
-    choose_year_str = raw_input('Does the list have year/time-period (Y/N): ')
+    choose_year_str = input('Does the list have year/time-period (Y/N): ')
     if choose_year_str in ['y', 'Y', 'yes', 'Yes']: 
         choose_year = "Yes"
     else: 
@@ -255,18 +258,18 @@ def add_mapper_fn():
     mapper_function['extractors'] = extractors
     mapper_function['headers'][lang] = headers
     mapper_function['ontology'][lang] = ontology_mappings
-    print '\nFollowing is the Mapper Function that would be added:\n\n"' + mapper_name + '"'  
-    print json.dumps(mapper_function, indent=4)  #pretty prints the mapper function settings
+    print('\nFollowing is the Mapper Function that would be added:\n\n"' + mapper_name + '"')
+    print(json.dumps(mapper_function, indent=4))  # pretty prints the mapper function settings
 
     #ask user to save the new mapper function
-    save_mapper = raw_input("\nDo you want to save this Mapper Function?? (Y/N): ")
+    save_mapper = input("\nDo you want to save this Mapper Function?? (Y/N): ")
     if save_mapper in ['y', 'Y', 'yes', 'Yes']:
         #dump the existing dictionary into `custom_mappers.json` and save mapper function permanently
         dump_custom_mappers(mapper_name, mapper_function)
-        print 'Mapper Function saved!!'
+        print('Mapper Function saved!!')
         return
     else:
-        print 'Aborted!!!'
+        print('Aborted!!!')
         return
 
 
@@ -313,17 +316,17 @@ def load_custom_mappers():
         with open("custom_mappers.json") as custom_mappers_file:
             try:
                 custom_mappers = json.load(custom_mappers_file)
-                print 'Successful!\n'
+                print('Successful!\n')
             except:
                 #if no existing mapper functions found, return empty dict
-                print 'Empty file!'
+                print('Empty file!')
                 custom_mappers = dict()
 
             return custom_mappers
     
     #handle IO exceptions
     except IOError:
-        print "Settings files doesn't exist!!! "
+        print("Settings files doesn't exist!!! ")
         sys.exit(1)
 
 def dump_settings(new_settings):
@@ -351,11 +354,11 @@ def load_settings():
         #open the settings.json file and store mapping rules in settings dict
         with open('settings.json') as settings_file:
             settings = json.load(settings_file)
-            print 'Successful!\n'
+            print('Successful!\n')
             return settings
     
     except IOError:  #handles IO errors
-        print "Settings files doesn't exist!!! "
+        print("Settings files doesn't exist!!! ")
         sys.exit(1)
 
 def show_custom_mappers():
@@ -366,14 +369,15 @@ def show_custom_mappers():
     '''
     global custom_mappers
     if len(custom_mappers) == 0:
-        print '\nNo custom mappings yet!!\n'
+        print('\nNo custom mappings yet!!\n')
         return
 
     #prints all custom mapper functions
-    print '\nAvailable custom mappers:',
-    for key in custom_mappers.keys(): print key + ",",
-    print '\nDetails:\n-------\n'
-    print json.dumps(custom_mappers, indent=4)
+    print('\nAvailable custom mappers:', end=' ')
+    for key in custom_mappers.keys(): print(key + ",", end=' ')
+    print('\nDetails:\n-------\n')
+    print(json.dumps(custom_mappers, indent=4))
+
 
 if __name__ == "__main__":
     main()

@@ -49,7 +49,7 @@ def load_settings():
             MAPPING = settings['MAPPING']
             return MAPPING
     except IOError:
-        print "Settings files doesn't exist!!! "
+        print("Settings files doesn't exist!!! ")
         sys.exit(1)
 
 def load_custom_mappers():
@@ -64,7 +64,7 @@ def load_custom_mappers():
             CUSTOM_MAPPERS = json.load(custom_mappers)  #load mappers from file into the dict
             return CUSTOM_MAPPERS
     except IOError:
-        print "Custom mappers not found!"
+        print("Custom mappers not found!")
         return dict()  #in case of failure, assume no user defined mappers and return empty dict
 
 
@@ -106,8 +106,8 @@ def createResFile(file_content, lang, resName):
 
     :return: void
     '''
-    title = resName + " [" + lang.upper() + "] - " + getDate() + ".txt"
-    path = get_subdirectory('resources', title)
+    title = resName.decode() + " [" + lang.upper() + "] - " + getDate() + ".txt"
+    path = get_subdirectory("resources", title)
     str_content = makeReadable(file_content)
     
     try:
@@ -160,13 +160,26 @@ def clean_dictionary(language, listDict) :
 
     :return: a dictionary without empty values.
     '''
-    for key in listDict.keys() :
-        if listDict[key] == '' :
-            listDict.pop(key)
-        if key in EXCLUDED_SECTIONS[language]:  #remove excluded sections
-            listDict.pop(key)
+    i = 0
+    key_list = list(listDict.keys())
+    while i < len(key_list):
+        if listDict[key_list[i]] == '':
+            listDict.pop(key_list[i])
+
+        if listDict[key_list[i]] in EXCLUDED_SECTIONS[language]:  #remove excluded sections
+            listDict.pop(key_list[i])
+
         else:
-            listDict[key] = remove_symbols(listDict[key])
+            listDict[key_list[i]] = remove_symbols(listDict[key_list[i]])
+        i = i + 1
+
+    #for key in listDict.keys():
+    #    if listDict[key] == '':
+     #       listDict.pop(key)
+     #   if key in EXCLUDED_SECTIONS[language]:  #remove excluded sections
+      #      listDict.pop(key)
+       # else:
+        #    listDict[key] = remove_symbols(listDict[key])
 
     return listDict
 
@@ -201,7 +214,7 @@ def sparql_query(query, lang):
     else:
         local = lang + "."
     
-    enc_query = urllib.quote_plus(query)
+    enc_query = urllib.parse.quote_plus(query)
     endpoint_url = "http://" + local + "dbpedia.org/sparql?default-graph-uri=&query=" + enc_query + \
                    "&format=application%2Fsparql-results%2Bjson&debug=on"
     json_result = json_req(endpoint_url)
@@ -269,7 +282,7 @@ def json_req(req):
     :return: a JSON representation of data obtained from a call to an online service.
     '''
     try:
-        call = urllib.urlopen(req)
+        call = urllib.request.urlopen(req)
         answer = call.read()
         json_ans = json.loads(answer)
         return json_ans
@@ -291,7 +304,7 @@ def get_resource_type(lang, resource):
         local = ""
     else:
         local = lang + "."
-    type_query = "SELECT distinct ?t WHERE {<http://" + local + "dbpedia.org/resource/" + resource + "> a ?t}"
+    type_query = "SELECT distinct ?t WHERE {<http://" + local + "dbpedia.org/resource/" + resource.decode() + "> a ?t}"
     answer = sparql_query(type_query, lang)
     results = answer['results']['bindings']
     types = []
@@ -326,16 +339,16 @@ def evaluate(lang, source, tot_res, tot_res_success, tot_extracted_elems, tot_el
     :return: void.
     '''
     try:
-        print "\nEvaluation:\n===========\n"
-        print "Resource Type:", lang + ":" + source
-        print "Resources Found:", tot_res
-        print "Resources successfully processed:", tot_res_success
-        print "List elements found:", tot_elems
-        print "List elements extracted:", tot_extracted_elems
-        print "Triples Created:", num_statements
+        print("\nEvaluation:\n===========\n")
+        print("Resource Type:", lang + ":" + source)
+        print("Resources Found:", tot_res)
+        print("Resources successfully processed:", tot_res_success)
+        print("List elements found:", tot_elems)
+        print("List elements extracted:", tot_extracted_elems)
+        print("Triples Created:", num_statements)
         accuracy = (1.0*tot_extracted_elems)/tot_elems
-        print "Accuracy:", accuracy
-        print ""
+        print("Accuracy:", accuracy)
+        print("")
 
         #write the evaluation results in evaluation.csv
         with open('evaluation.csv', 'a') as csvfile:
@@ -343,4 +356,4 @@ def evaluate(lang, source, tot_res, tot_res_success, tot_extracted_elems, tot_el
             filewriter.writerow([lang, source, tot_res, tot_res_success, tot_extracted_elems, tot_elems, 
                                     num_statements, accuracy])
     except ZeroDivisionError:
-        print '\nNo elements extracted!'
+        print('\nNo elements extracted!')
