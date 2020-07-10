@@ -242,7 +242,7 @@ def add_mapper_fn():
             key_value = input("Input a key value pair (header:Property): ").split(":")
             key = key_value[0].strip()
             value = key_value[1].strip()
-            ontology_mappings[key]=value
+            ontology_mappings[key] = value
         except:
             print('Invalid entry!!')
 
