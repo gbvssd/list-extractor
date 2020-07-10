@@ -24,7 +24,6 @@ public class JSONpedia_Wrapper {
 	 */
 	public static void main(String[] args) throws JSONpediaException, FileNotFoundException {
 
-		//creating instance of the JCommander annotated Commandline parser class
 		ArgParser parser = new ArgParser();
 		new JCommander(parser, args);
 
@@ -41,6 +40,7 @@ public class JSONpedia_Wrapper {
 			processors += s + ",";
 		}
 		processors = processors.substring(0, processors.length()-1);
+		//System.out.println(processors);
 		
 		//creating final filters to be passed to Jsonpedia
 		if(!(fltr.isEmpty())){
@@ -48,10 +48,12 @@ public class JSONpedia_Wrapper {
 				filters += "@type:" + s + ",";
 			}
 			filters = filters.substring(0,filters.length()-1);
+			//System.out.println(filters);
 		}
 		
 		//make a Jsonpedia instance and query with given parameters
 		JSONpedia jsonpedia = JSONpedia.instance();
+		//System.out.println(resource);
 		JsonNode node = jsonpedia.process(resource).flags(processors).
 				filter(filters).json();
 
