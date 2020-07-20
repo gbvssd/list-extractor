@@ -8,6 +8,7 @@ import time
 import requests
 from mapping_rules import *
 from rdflib import RDF, Literal
+import Analyzier
 
 # defining namespaces to be used in the extracted triples
 dbo = rdflib.Namespace("http://dbpedia.org/ontology/")
@@ -190,6 +191,7 @@ def map_person_list(elem_list, lang, g, elems, pattern):
             map_person_list(elem, lang, g, elems, pattern)  # handle recursive lists
 
         else:
+            Analyzier.apply(elem, pattern)
             uri = None
             # elem = elem.encode('utf-8')  # apply utf-8 encoding
             res_name = person_name_map(elem)

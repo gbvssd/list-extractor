@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 from collections import defaultdict
-import  Analyzier
+import Analyzier
 
 pattern = dict()
 
@@ -40,7 +40,7 @@ def show_pattern(settings):
 
     # prints all the existing mapping rules
     for key in mappings.keys():
-        print('   ', key, ':', mappings[key])
+        print('   ' + key + ':' + mappings[key])
 
 
 def dump_pattern(pattern_json):
@@ -64,7 +64,7 @@ def add_pattern():
 
     print(json.dumps(pattern_string, indent=4))
 
-    save_pattern = input("\nDo you want to save this Mapper Function?? (Y/N): ")
+    save_pattern = input("\nDo you want to save this Mapper Function? (Y/N): ")
     if save_pattern in ['y', 'Y', 'yes', 'Yes']:
         # dump the existing dictionary into `custom_mappers.json` and save mapper function permanently
         pattern['PATTERN'][len(pattern["PATTERN"]) + 1] = pattern_string
