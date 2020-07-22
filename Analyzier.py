@@ -4,31 +4,110 @@ import sys
 
 pattern_string = dict()
 pattern_symbol = list()
-property_string = list()
 
 
 def apply(to_process, pattern):
+    """
+        apply the pattern to the string
+
+        :param to_process: this is the string that the pattern should be applied to
+        :param pattern: this is the pattern number, which corresponded to a pattern in ''pattern.json'' file
+        :return : void
+    """
     load_json()
     pattern_symbol_list = group_process()
 
     if pattern > len(pattern_symbol):
         print("there is no such pattern")
         sys.exit(0)
+
+    devided_symbol = pattern_symbol_list[pattern - 1]
+    result = dict()
+    print(devided_symbol)
+
+    property_list = find_property(pattern, pattern_symbol_list)
+
+    number = 0
+    flag = -1
+    gap = 1
+    skip = 0
+    while flag < len(devided_symbol):
+        # print("the" + str(flag) + "loop begin")
+        # print("to process string is " + to_process + "\n")
+        content = ""
+
+        first = ""
+        second = ""
+        if (flag + gap) >= len(devided_symbol) or number > len(property_list):
+            content = to_process
+            # print("content is :" + content + "\n")
+            result[clear_text(property_list[-1])] = content
+            break
+        elif flag == -1:
+            second = devided_symbol[flag + gap]
+        elif flag == len(devided_symbol) - 1:
+            first = devided_symbol[flag]
+        else:
+            first = devided_symbol[flag]
+            second = devided_symbol[flag + gap]
+
+        express = reguler_generate(first, second, property_list[number])
+        # print("the express is " + express + "\n")
+        match = re.search(express, to_process)
+        if match:
+            content = match.group(0)
+            # print("content is :" + content + "\n")
+            result[clear_text(property_list[number])] = content
+            number += 1
+            number += skip
+            to_process = second + to_process
+            flag = flag + gap
+            gap = 1
+            if content == "":
+                continue
+        else:
+            gap += 1
+            skip += 1
+            continue
+        to_process = to_process.replace(content, '')
+        # print("----------------------------------------------------------")
+
+    print(result)
+    print("\n\n\n\n")
+    return result
+
+
+def clear_text(text):
+    """
+    clear the symbol in the text, make it only contain the useful information
+
+    :param text: the text to be cleared
+    :return : the cleared text
+    """
+    result = ""
+    for char in text:
+        if is_critical(char):
+            continue
+        else:
+            result += char
+    return result
+
+
+def find_property(pattern, pattern_symbol_list):
+    """
+    this function will find the property name in the pattern string
+
+    :param pattern: the number of the pattern
+    :param pattern_symbol_list: the list of pattern symbol corresponed to the ''pattern.json'' file
+
+    :return : a list of property name
+    """
     original = pattern_string['PATTERN'][str(pattern)]
     devided_symbol = pattern_symbol_list[pattern - 1]
 
-    # left = to_process
-    # original_left = original
-    result = dict()
-
-    print(devided_symbol)
-
+    result = list()
     flag = -1
-    gap = 1
     while flag < len(devided_symbol):
-        # print("the" + str(flag) + "loop begin")
-        print("to process string is " + to_process + "\n")
-
         first = ""
         second = ""
         if flag == -1:
@@ -39,83 +118,23 @@ def apply(to_process, pattern):
             first = devided_symbol[flag]
             second = devided_symbol[flag + 1]
 
-        # print("the first symbol is" + first + "and the second is " + second + "\n")
         pattern = re.escape(first.upper()) + r".*?" + re.escape(second.upper())
-        # print("the pattern is " + pattern + "\n")
         match = re.search(pattern, original)
         proprity = ""
 
+        if flag == len(devided_symbol) - 1:
+            result.append(original)
+            break
+
         if match:
             proprity = match.group(0)
+            result.append(proprity)
             original = original.replace(proprity, '')
-            original = second + original
+            original = second.upper() + original
             if proprity == "":
                 continue
-        print("proprity  is : " + proprity + "\n")
-        content = ""
+        flag += 1
 
-        if (flag + gap) >= len(devided_symbol):
-            content = to_process
-            print("content is :" + content + "\n")
-            break
-        elif flag == -1:
-            second = devided_symbol[0]
-        elif flag == len(devided_symbol) - 1:
-            first = devided_symbol[flag]
-        else:
-            first = devided_symbol[flag]
-            second = devided_symbol[flag + gap]
-
-        express = reguler_generate(first, second, proprity)
-        print("the express is " + express + "\n")
-        match = re.search(express, to_process)
-        if match:
-            content = match.group(0)
-            print("content is :" + content + "\n")
-            to_process = second + to_process
-            flag = flag + gap
-            gap = 1
-            if content == "":
-                continue
-        else:
-            gap += 1
-            continue
-        to_process = to_process.replace(content, '')
-        print("----------------------------------------------------------")
-
-    # flag = 0
-    # for symbol in reversed(devided_symbol):
-    #   if flag == len(devided_symbol) - 1:
-    #        original_right = original_left.rsplit(symbol, 1)[1]
-    #        original_left = original_left.rsplit(symbol, 1)[0]
-    #        if len(left.split(symbol, 1)) < 2:
-    #            continue
-    #        right = left.rsplit(symbol, 1)[1]
-    #        left = left.rsplit(symbol, 1)[0]
-    #        result[original_right] = right
-    #        result[original_left] = left
-    #    else:
-    #        if symbol.islower():
-    #            symbol = symbol.upper()
-    #        original_right = original_left.rsplit(symbol, 1)[1]
-    #        original_left = original_left.rsplit(symbol, 1)[0]
-    #        print("symbol is :" + symbol)
-    #        print("proprity is :" + original_right)
-    #        print("what left is :" + original_left)
-    #        symbol = symbol.lower()
-    #        if len(left.split(symbol, 1)) < 2:
-    #            flag += 1
-    #            print("invaild symbol" + symbol)
-    #            continue
-    #        else:
-    #            right = left.rsplit(symbol, 1)[1]
-    #            left = left.rsplit(symbol, 1)[0]
-    #            print("value is :" + right)
-    #            result[original_right] = right
-    #    flag += 1
-
-    print(result)
-    print("\n\n\n\n")
     return result
 
 
@@ -123,17 +142,18 @@ def reguler_generate(first_symbol, second_symbol, middle_string):
     result = ""
     first_symbol = re.escape(first_symbol)
     second_symbol = re.escape(second_symbol)
-    print("the symbol is:" + first_symbol + "  and  " + second_symbol)
+    # print("the symbol is:" + first_symbol + "  and  " + second_symbol + "\n")
+    # print("what within is  " + middle_string + "\n")
     match = re.search(r"name", middle_string)
     if match:
-        print("it contain a name")
+        # print("it contain a name")
         result = first_symbol + r".*?\{\{.*?\}\}.*?" + second_symbol
         return result
 
     match = re.search(r"Date|date", middle_string)
     if match:
-        print("it contain a date")
-        result = first_symbol + r".*?" + second_symbol
+        # print("it contain a date")
+        result = first_symbol + r".+?[0-9]+.*?" + second_symbol
         return result
 
     result = first_symbol + r".*?" + second_symbol
@@ -145,7 +165,7 @@ def load_json():
         This method loads the saved settings (mapping rules) from ``settings.json``.
 
         :return: void.
-        """
+    """
     global pattern_string
     try:
         # open the settings.json file and store mapping rules in settings dict
@@ -205,8 +225,7 @@ def string_analyzier(pattern_elem):
 
 def is_critical(word):
     if re.match(r'\W', word):
-        if word != ' ':
-            return True
+        return True
     elif (word == 'I') | (word == 'N'):
         return True
     else:

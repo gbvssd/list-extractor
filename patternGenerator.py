@@ -7,6 +7,31 @@ import Analyzier
 pattern = dict()
 
 
+def delete_pattern():
+    """
+    This method delete the setting that already in the json file
+    """
+    global pattern
+    index = input("Enter the number of pattern that you want to delete: ").strip()
+
+    pattern['PATTERN'].pop(index)
+    pattern_mapping = pattern['PATTERN']
+
+    pattern_strings = []
+    for key in pattern_mapping:
+        pattern_strings.append(pattern_mapping[key])
+
+    pattern.pop("PATTERN")
+    pattern["PATTERN"] = dict()
+    number = 1
+    for ele in pattern_strings:
+        pattern['PATTERN'][str(number)] = ele
+        number += 1
+
+    print(pattern)
+    dump_pattern(pattern)
+
+
 def load_pattern():
     """
     This method loads the saved settings (mapping rules) from ``settings.json``.
@@ -56,7 +81,6 @@ def dump_pattern(pattern_json):
 
 
 def add_pattern():
-
     global pattern
     pattern_string = defaultdict(dict)
 
@@ -100,6 +124,7 @@ def main():
                  "1. Show existing pattern\n" \
                  "2. Add new pattern\n" \
                  "3. Analyer mod\n" \
+                 "4. Delete pattern\n" \
                  "0. Quit\n" \
                  "\nYour option: "
     print('')
@@ -115,6 +140,8 @@ def main():
                 add_pattern()
             elif run == 3:
                 Analyzier.group_process()
+            elif run == 4:
+                delete_pattern()
             elif run == 0:
                 sys.exit(0)
             else:

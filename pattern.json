@@ -1,1 +1,1 @@
-{"PATTERN": {"1": "name (birthDate–DeathDate), profession, callsign", "2": "name", "3": "add", "4": "name (birthDate IN birhtPlace ; deathDate IN deathPlace)professtion", "5": "EmigrateDate – name(birthDate\u2013deathDate), profession(EmigratePlace)", "6": "name", "7": "opps"}}
+{"PATTERN": {"1": "name (birthDate\u2013deathDate), birthPalce, foundPlace", "2": "EmigrateDate \u2013 name(birthDate\u2013deathDate), profession(EmigratePlace)", "3": "name (birthDate\u2013deathDate), profession, callsign", "4": "name (birthDate IN birthPalce; deathDate IN deathPlace)profession"}}

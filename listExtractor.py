@@ -67,7 +67,7 @@ def main():
                              '\nen: English (Default)\nit: Italian\nde: German\nes: Spanish\n')
     parser.add_argument("-c", "--classname", type=str, help='Provide a classname from settings.json and use its'
                                                             '\nmapper functions')
-    parser.add_argument('pattern', type=int, choices=[0, 1, 2, 3, 4, 5], default=0,
+    parser.add_argument('pattern', type=int, default=0,
                         help='Pattern that will be applied to extracting')
 
     args = parser.parse_args()

@@ -191,58 +191,69 @@ def map_person_list(elem_list, lang, g, elems, pattern):
             map_person_list(elem, lang, g, elems, pattern)  # handle recursive lists
 
         else:
-            Analyzier.apply(elem, pattern)
+            info_dict = Analyzier.apply(elem, pattern)
+            print(info_dict)
             uri = None
-            # elem = elem.encode('utf-8')  # apply utf-8 encoding
-            res_name = person_name_map(elem)
-            year = month_year_mapper(elem)
+            res_properties = info_dict.keys()
+            print(res_properties)
 
-            if res_name:
-                elem = elem.replace(res_name, "")  # delete resource name found from element for further mapping
-                res_name = res_name.replace(" (", '')
-                res_name = res_name.replace(" 1", '')
-                res_name = res_name.replace(",", '')
-                res_name = res_name.replace(' ', '_')
-                res_name = res_name.replace("_%E2%80%A0", '')
-                if res_name[0] == "_":
-                    res_name = res_name[1:]
-                if res_name.endswith("_"):
-                    res_name = res_name[1:-1]
-                print("founded person name ")
-                print(res_name)
-                print("\n")
-                res_name = urllib.request.quote(res_name)
-                print("founded year")
-                print(year)
+            name = ""
+            for res_property in res_properties:
+                if re.search(r"name", res_property):
+                    name = info_dict[res_property]
 
-                print("\n")
-                uri = dbr + res_name
-            # add successfully extracted triples into the graph
-            if uri and uri != "":
+            match = re.search(r".*?\{\{.*?\}\}", name)
+            if match:
+                name = match.group(0)
+                name = name.replace(" ", "_")
+                name = name.replace("{{", "")
+                name = name.replace("}}", "")
+                print("name is" + name)
+                uri = dbr + urllib.request.quote(name)
                 g.add((rdflib.URIRef(uri), RDF.type, dbo.person))
-                if pattern == 1:
-                    if year:
-                        add_years_to_graph(g, uri, year)
-                    find_info_list(elem, g, uri)
-
-                if pattern == 2:
-                    if year:
-                        add_years_to_graph(g, uri, year)
-                    find_founded_place(elem, g, uri)
-
-                if pattern == 3:
-                    if year:
-                        add_years_to_graph(g, uri, year)
-                    find_birth_place(elem, g, uri)
-                    map_profession_list(elem, g, uri)
-
-                if pattern == 4:
-                    if year:
-                        add_year_to_graph(g, uri, year)
-                    map_profession_list(elem, g, uri)
                 elems += 1
+            else:
+                continue
+
+            for res_property in res_properties:
+                print("the property current process is " + res_property)
+                if re.search(r"name", res_property):
+                    continue
+                elif re.search(r"date|Date", res_property):
+                    content = info_dict[res_property]
+                    date = month_year_mapper(content)
+                    print(date)
+                    if not date:
+                        g.add((rdflib.URIRef(uri), dbo[res_property],
+                               rdflib.Literal(clear_text(info_dict[res_property]))))
+                    else:
+                        add_year_to_graph(g, uri, date[0], res_property)
+                elif res_property == "":
+                    continue
+                else:
+                    g.add((rdflib.URIRef(uri), dbo[res_property],
+                           rdflib.Literal(clear_text(info_dict[res_property]))))
 
     return elems
+
+
+def clear_text(text):
+    result = ""
+    for char in text:
+        if is_critical(char):
+            continue
+        else:
+            result += char
+    result = result.strip()
+    return result
+
+
+def is_critical(word):
+    if re.match(r'\W', word):
+        if word != ' ':
+            return True
+    else:
+        return False
 
 
 def person_list_mapper(list_elem):
@@ -484,81 +495,6 @@ def person_name_map(elem):
         return person_list_mapper(elem)
 
 
-def add_year_to_graph(g, uri, year):
-    """
-    this is special edition for https://de.wikipedia.org/wiki/Liste_bekannter_deutscher_USA-Emigranten
-    pattern 4
-    """
-    if len(year) == 2:
-        if isinstance(year[0], list):
-            if "^" in year[0][1]:  # '^' is a seperator used for month and year
-                d = year[0][1].replace("^", "-")
-                g.add((rdflib.URIRef(uri), dbo['birthDate'],
-                       rdflib.Literal(d, datatype=rdflib.XSD.gYearMonth)))
-            else:
-                g.add((rdflib.URIRef(uri), dbo['birthDate'],
-                       rdflib.Literal(year[0][1], datatype=rdflib.XSD.gYear)))
-
-            if "^" in year[0][1]:
-                d = year[0][1].replace("^", "-")
-                g.add((rdflib.URIRef(uri), dbo['deathDate'],
-                       rdflib.Literal(d, datatype=rdflib.XSD.gYearMonth)))
-
-            else:
-                g.add((rdflib.URIRef(uri), dbo['deathDate'],
-                       rdflib.Literal(year[0][1], datatype=rdflib.XSD.gYear)))
-
-            if "^" in year[1]:
-                d = year[1].replace("^", "-")
-                g.add((rdflib.URIRef(uri), dbo['emigrantenDate'],
-                       rdflib.Literal(d, datatype=rdflib.XSD.gYearMonth)))
-
-            else:
-                g.add((rdflib.URIRef(uri), dbo['emigrantenDate'],
-                       rdflib.Literal(year[1], datatype=rdflib.XSD.gYear)))
-        else:
-            if "^" in year[0]:
-                d = year[0].replace("^", "-")
-                g.add((rdflib.URIRef(uri), dbo['emigrantenDate'],
-                       rdflib.Literal(d, datatype=rdflib.XSD.gYearMonth)))
-
-            else:
-                g.add((rdflib.URIRef(uri), dbo['emigrantenDate'],
-                       rdflib.Literal(year[0], datatype=rdflib.XSD.gYear)))
-
-            if "^" in year[1]:
-                d = year[1].replace("^", "-")
-                g.add((rdflib.URIRef(uri), dbo['birthDate'],
-                       rdflib.Literal(d, datatype=rdflib.XSD.gYearMonth)))
-
-            else:
-                g.add((rdflib.URIRef(uri), dbo['birthDate'],
-                       rdflib.Literal(year[1], datatype=rdflib.XSD.gYear)))
-
-    else:
-        if isinstance(year[0], list):
-            if "^" in year[0][1]:  # '^' is a seperator used for month and year
-                d = year[0][1].replace("^", "-")
-                g.add((rdflib.URIRef(uri), dbo['birthDate'],
-                       rdflib.Literal(d, datatype=rdflib.XSD.gYearMonth)))
-            else:
-                g.add((rdflib.URIRef(uri), dbo['birthDate'],
-                       rdflib.Literal(year[0][1], datatype=rdflib.XSD.gYear)))
-
-            if "^" in year[0][1]:
-                d = year[0][1].replace("^", "-")
-                g.add((rdflib.URIRef(uri), dbo['deathDate'],
-                       rdflib.Literal(d, datatype=rdflib.XSD.gYearMonth)))
-
-            else:
-                g.add((rdflib.URIRef(uri), dbo['deathDate'],
-                       rdflib.Literal(year[0][1], datatype=rdflib.XSD.gYear)))
-        else:
-            if "^" in year[0]:
-                d = year[0].replace("^", "-")
-                g.add((rdflib.URIRef(uri), dbo['birthDate'],
-                       rdflib.Literal(d, datatype=rdflib.XSD.gYearMonth)))
-
-            else:
-                g.add((rdflib.URIRef(uri), dbo['birthDate'],
-                       rdflib.Literal(year[0], datatype=rdflib.XSD.gYear)))
+def add_year_to_graph(g, uri, year, date_property):
+    g.add((rdflib.URIRef(uri), dbo[date_property],
+           rdflib.Literal(year, datatype=rdflib.XSD.gYear)))
