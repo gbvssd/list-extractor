@@ -8,7 +8,7 @@
 * This module contains all the utility methods/functions that are commonly used by all mapper functions.
 
 """
-
+import ssl
 import time
 import datetime
 import os
@@ -221,14 +221,9 @@ def sparql_query(query, lang):
 
     :return: JSON result obtained from the endpoint.
     """
-    if lang == 'en':
-        local = ""
-    else:
-        local = lang + "."
-
     enc_query = urllib.parse.quote_plus(query)
-    endpoint_url = "http://" + local + "dbpedia.org/sparql?default-graph-uri=&query=" + enc_query + \
-                   "&format=application%2Fsparql-results%2Bjson&debug=on"
+    endpoint_url = "https://de.dbpedia.org/sparql?default-graph-uri=&query=" + enc_query + \
+                   "&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on"
     json_result = json_req(endpoint_url)
     return json_result
 
@@ -294,7 +289,8 @@ def json_req(req):
     :return: a JSON representation of data obtained from a call to an online service.
     '''
     try:
-        call = urlopen(req)
+        context = ssl._create_unverified_context()
+        call = urlopen(req, context=context)
         answer = call.read()
         json_ans = json.loads(answer)
         return json_ans

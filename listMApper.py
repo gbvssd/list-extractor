@@ -6,13 +6,15 @@ import utilities
 import sys
 import time
 import requests
+
+from entityRecognition import entity_recongnition
 from mapping_rules import *
 from rdflib import RDF, Literal
 import Analyzier
 
 # defining namespaces to be used in the extracted triples
-dbo = rdflib.Namespace("http://dbpedia.org/ontology/")
-dbr = rdflib.Namespace("http://dbpedia.org/resource/")
+dbo = rdflib.Namespace("http://de.dbpedia.org/ontology/")
+dbr = rdflib.Namespace("http://de.dbpedia.org/resource/")
 rdf = rdflib.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 
 mapped_domains = []  # used to prevent duplicate mappings
@@ -209,8 +211,9 @@ def map_person_list(elem_list, lang, g, elems, pattern):
                 name = name.replace("{{", "")
                 name = name.replace("}}", "")
                 print("name is" + name)
+                name = name.strip()
                 uri = dbr + urllib.request.quote(name)
-                g.add((rdflib.URIRef(uri), RDF.type, dbo.person))
+                g.add((rdflib.URIRef(uri), RDF.type, dbo['person']))
                 elems += 1
             else:
                 continue
@@ -231,8 +234,12 @@ def map_person_list(elem_list, lang, g, elems, pattern):
                 elif res_property == "":
                     continue
                 else:
-                    g.add((rdflib.URIRef(uri), dbo[res_property],
-                           rdflib.Literal(clear_text(info_dict[res_property]))))
+                    profession = entity_recongnition(info_dict[res_property])
+                    for ele in profession:
+                        g.add((rdflib.URIRef(uri), dbr['profession'],
+                               rdflib.URIRef(ele)))
+                    # g.add((rdflib.URIRef(uri), dbo[res_property],
+                    #       rdflib.Literal(clear_text(info_dict[res_property]))))
 
     return elems
 
