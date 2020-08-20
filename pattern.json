@@ -1,1 +1,9 @@
-{"PATTERN": {"1": "name (birthDate\u2013deathDate), birthPalce, foundPlace", "2": "EmigrateDate \u2013 name(birthDate\u2013deathDate), profession(EmigratePlace)", "3": "name (birthDate\u2013deathDate), profession, callsign", "4": "name (birthDate IN birthPalce; deathDate IN deathPlace)profession"}}
+{
+  "PATTERN":
+  {
+    "1": "name (birthDate\u2013deathDate), birthPlace, foundPlace",
+    "2": "$EmigrateDate \u2013& name(birthDate\u2013deathDate), profession$(EmigratePlace)&",
+    "3": "name (birthDate\u2013deathDate), profession, callsign",
+    "4": "name (birthDate IN birthPlace; deathDate IN deathPlace)profession"
+  }
+}

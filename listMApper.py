@@ -1,11 +1,7 @@
-import urllib
-import json
+import urllib.parse
 import re
 import rdflib
 import utilities
-import sys
-import time
-import requests
 
 from entityRecognition import entity_recongnition
 from mapping_rules import *
@@ -13,8 +9,8 @@ from rdflib import RDF, Literal
 import Analyzier
 
 # defining namespaces to be used in the extracted triples
-dbo = rdflib.Namespace("http://de.dbpedia.org/ontology/")
-dbr = rdflib.Namespace("http://de.dbpedia.org/resource/")
+dbo = rdflib.Namespace("http://dbpedia.org/ontology/")
+dbr = rdflib.Namespace("http://dbpedia.org/resource/")
 rdf = rdflib.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 
 mapped_domains = []  # used to prevent duplicate mappings
@@ -59,7 +55,7 @@ def list_select_mapping(resDict, res, lang, g, pattern):
     # if required class is a valid and existing class in the mapping, run suitable mapper functions
     if lang != 'en':  # correct dbpedia resource domain for non-english language
         global dbr
-        dbr = rdflib.Namespace("http://" + lang + ".dbpedia.org/resource/")
+        dbr = rdflib.Namespace("http://de.dbpedia.org/resource/")
     db_res = rdflib.URIRef(dbr + res.decode('utf-8'))
 
     for res_key in resDict.keys():  # iterate on resource dictionary keys
@@ -194,10 +190,8 @@ def map_person_list(elem_list, lang, g, elems, pattern):
 
         else:
             info_dict = Analyzier.apply(elem, pattern)
-            print(info_dict)
             uri = None
             res_properties = info_dict.keys()
-            print(res_properties)
 
             name = ""
             for res_property in res_properties:
@@ -207,12 +201,15 @@ def map_person_list(elem_list, lang, g, elems, pattern):
             match = re.search(r".*?\{\{.*?\}\}", name)
             if match:
                 name = match.group(0)
+                name = name.split("(", 1)[0]
+                name = name.split(",", 1)[0]
+                name = name.strip()
                 name = name.replace(" ", "_")
                 name = name.replace("{{", "")
                 name = name.replace("}}", "")
                 print("name is" + name)
-                name = name.strip()
-                uri = dbr + urllib.request.quote(name)
+                uri = dbr + name
+                print("uri is" + uri)
                 g.add((rdflib.URIRef(uri), RDF.type, dbo['person']))
                 elems += 1
             else:
@@ -231,15 +228,38 @@ def map_person_list(elem_list, lang, g, elems, pattern):
                                rdflib.Literal(clear_text(info_dict[res_property]))))
                     else:
                         add_year_to_graph(g, uri, date[0], res_property)
+                elif re.search(r"Place|place", res_property):
+                    location = entity_recongnition(info_dict[res_property], res_property)
+                    if location:
+                        for ele in location:
+                            g.add((rdflib.URIRef(uri), dbo[res_property],
+                                   rdflib.URIRef(ele)))
+                    else:
+                        information = info_dict[res_property]
+                        information = information.strip()
+                        information = information.replace(",", "")
+                        information = information.replace(")", "")
+                        information = information.strip()
+                        g.add((rdflib.URIRef(uri), dbo[res_property],
+                               rdflib.Literal(information)))
                 elif res_property == "":
                     continue
                 else:
-                    profession = entity_recongnition(info_dict[res_property])
-                    for ele in profession:
-                        g.add((rdflib.URIRef(uri), dbr['profession'],
-                               rdflib.URIRef(ele)))
-                    # g.add((rdflib.URIRef(uri), dbo[res_property],
-                    #       rdflib.Literal(clear_text(info_dict[res_property]))))
+                    print("find profession and other thing")
+                    profession = entity_recongnition(info_dict[res_property], res_property)
+                    print("complete finding")
+                    if profession:
+                        for ele in profession:
+                            g.add((rdflib.URIRef(uri), dbr[res_property],
+                                   rdflib.URIRef(ele)))
+                    else:
+                        information = info_dict[res_property]
+                        information = information.strip()
+                        information = information.replace(",", "")
+                        information = information.replace(")", "")
+                        information = information.strip()
+                        g.add((rdflib.URIRef(uri), dbr[res_property],
+                               rdflib.Literal(information)))
 
     return elems
 
@@ -404,17 +424,17 @@ def month_year_mapper(list_elem):
 
     # month_list a dictionaly that contain regex for different months as keys and a corresponding number
     # to that month with a '^' sign as value. This would be useful while mapping the years in the triples.
-    month_list = {r'(january\s?)\d{4}': '1^', r'\W(jan\s?)\d{4}': '1^', r'(february\s?)\d{4}': '2^',
-                  r'\W(feb\s?)\d{4}': '2^',
-                  r'(march\s?)\d{4}': '3^', r'\W(mar\s?)\d{4}': '3^', r'(april\s?)\d{4}': '4^',
-                  r'\W(apr\s?)\d{4}': '4^',
-                  r'(may\s?)\d{4}': '5^', r'\W(may\s?)\d{4}': '5^', r'(june\s?)\d{4}': '6^', r'\W(jun\s?)\d{4}': '6^',
-                  r'(july\s?)\d{4}': '7^', r'\W(jul\s?)\d{4}': '7^', r'(august\s?)\d{4}': '8^',
-                  r'\W(aug\s?)\d{4}': '8^',
-                  r'(september\s?)\d{4}': '9^', r'\W(sep\s?)\d{4}': '9^', r'\W(sept\s?)\d{4}': '9^',
-                  r'(october\s?)\d{4}': '10^',
-                  r'\W(oct\s?)\d{4}': '10^', r'(november\s?)\d{4}': '11^', r'\W(nov\s?)\d{4}': '11^',
-                  r'(december\s?)\d{4}': '12^', r'\W(dec\s?)\d{4}': '12^'}
+    month_list = {r'(januar\s?)\d{4}': '01^', r'\W(jan\s?)\d{4}': '01^', r'(februar\s?)\d{4}': '02^',
+                  r'\W(feb\s?)\d{4}': '02^',
+                  r'(märz\s?)\d{4}': '03^', r'\W(mär\s?)\d{4}': '03^', r'(april\s?)\d{4}': '04^',
+                  r'\W(apr\s?)\d{4}': '04^',
+                  r'(mai\s?)\d{4}': '05^', r'\W(mai\s?)\d{4}': '05^', r'(juni\s?)\d{4}': '06^', r'\W(jun\s?)\d{4}': '06^',
+                  r'(juli\s?)\d{4}': '07^', r'\W(jul\s?)\d{4}': '07^', r'(august\s?)\d{4}': '08^',
+                  r'\W(aug\s?)\d{4}': '08^',
+                  r'(september\s?)\d{4}': '09^', r'\W(sep\s?)\d{4}': '09^', r'\W(sept\s?)\d{4}': '09^',
+                  r'(oktober\s?)\d{4}': '10^',
+                  r'\W(okt\s?)\d{4}': '10^', r'(november\s?)\d{4}': '11^', r'\W(nov\s?)\d{4}': '11^',
+                  r'(dezember\s?)\d{4}': '12^', r'\W(dez\s?)\d{4}': '12^'}
 
     month_present = False
     period_dates = False
@@ -503,5 +523,11 @@ def person_name_map(elem):
 
 
 def add_year_to_graph(g, uri, year, date_property):
-    g.add((rdflib.URIRef(uri), dbo[date_property],
-           rdflib.Literal(year, datatype=rdflib.XSD.gYear)))
+    if "^" in year:
+        d = year.replace("^", "-")
+        print("date is" + d)
+        g.add((rdflib.URIRef(uri), dbo[date_property],
+               rdflib.Literal(d, datatype=rdflib.XSD.gYearMonth)))
+    else:
+        g.add((rdflib.URIRef(uri), dbo[date_property],
+               rdflib.Literal(year, datatype=rdflib.XSD.gYear)))

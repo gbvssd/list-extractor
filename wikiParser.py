@@ -259,6 +259,7 @@ def jsonpedia_convert(language, resource):
                                  '-r', resource, '-p', 'Structure', '-f', "section"], stdout=subprocess.PIPE)
         pipe_output = proc.stdout.read()  # redirect the input into python variable
         proc.kill()  # kill the spawned process
+        print(pipe_output)
         sections = json.loads(pipe_output.decode("utf-8", "ignore")) # load the string as a python dict
 
     # handle different errors

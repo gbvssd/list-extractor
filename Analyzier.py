@@ -1,6 +1,7 @@
 import json
 import re
 import sys
+from itertools import combinations
 
 pattern_string = dict()
 pattern_symbol = list()
@@ -21,11 +22,13 @@ def apply(to_process, pattern):
         print("there is no such pattern")
         sys.exit(0)
 
-    devided_symbol = pattern_symbol_list[pattern - 1]
     result = dict()
-    print(devided_symbol)
 
-    property_list = find_property(pattern, pattern_symbol_list)
+    matched_pattern = match_pattern(generate_patterns(pattern_string['PATTERN'][str(pattern)]), to_process)
+
+    property_list = find_property(matched_pattern, string_analyzier(matched_pattern))
+
+    devided_symbol = string_analyzier(matched_pattern)
 
     number = 0
     flag = -1
@@ -35,9 +38,9 @@ def apply(to_process, pattern):
         # print("the" + str(flag) + "loop begin")
         # print("to process string is " + to_process + "\n")
         content = ""
-
         first = ""
         second = ""
+
         if (flag + gap) >= len(devided_symbol) or number > len(property_list):
             content = to_process
             # print("content is :" + content + "\n")
@@ -51,7 +54,7 @@ def apply(to_process, pattern):
             first = devided_symbol[flag]
             second = devided_symbol[flag + gap]
 
-        express = reguler_generate(first, second, property_list[number])
+        express = regular_generate(first, second, property_list[number])
         # print("the express is " + express + "\n")
         match = re.search(express, to_process)
         if match:
@@ -102,8 +105,8 @@ def find_property(pattern, pattern_symbol_list):
 
     :return : a list of property name
     """
-    original = pattern_string['PATTERN'][str(pattern)]
-    devided_symbol = pattern_symbol_list[pattern - 1]
+    original = pattern
+    devided_symbol = pattern_symbol_list
 
     result = list()
     flag = -1
@@ -138,7 +141,17 @@ def find_property(pattern, pattern_symbol_list):
     return result
 
 
-def reguler_generate(first_symbol, second_symbol, middle_string):
+def regular_generate(first_symbol, second_symbol, middle_string):
+    """
+    generator the regular expression which is used to extract the information
+    it contains a critical symbol in the front and another symbol in the end
+
+    :param first_symbol: the symbol use in the front
+    :param second_symbol: the symbol use in the end
+    :param middle_string: the string that between these two symbols
+
+    :return :the generated regular express
+    """
     result = ""
     first_symbol = re.escape(first_symbol)
     second_symbol = re.escape(second_symbol)
@@ -191,6 +204,9 @@ def group_process():
 
 
 def string_analyzier(pattern_elem):
+    """
+    find the critical string
+    """
     devide_symbols = []
     devide_symbol = ""
     flag = 0
@@ -224,9 +240,72 @@ def string_analyzier(pattern_elem):
 
 
 def is_critical(word):
+    """
+    find if the character is the critical character
+    currently is all special character an the word IN with upper form
+    """
     if re.match(r'\W', word):
         return True
     elif (word == 'I') | (word == 'N'):
         return True
     else:
         return False
+
+
+def generate_patterns(pattern):
+    result = []
+    number_of_optional = count_optional(pattern)
+    optional_string = []
+    match = re.findall(r"\$.*?\&", pattern)
+    if match:
+        optional_string = match
+        # print("optional string")
+        # print(optional_string)
+    while number_of_optional > -1:
+        pattern_list = multi_replace(pattern, optional_string, number_of_optional)
+        for ele in pattern_list:
+            result.append(ele)
+        number_of_optional -= 1
+    return result
+
+
+def multi_replace(pattern, optional_string, number):
+    result = []
+    combin_list = list(combinations(optional_string, number))
+    for ele in combin_list:
+        temp = pattern
+        for string in ele:
+            temp = temp.replace(string, "", 1)
+        temp = temp.strip()
+        temp = temp.replace("$", "")
+        temp = temp.replace("&", "")
+        result.append(temp)
+
+    return result
+
+
+def count_optional(pattern):
+    result = 0
+    for char in pattern:
+        if char == "$":
+            result += 1
+    return result
+
+
+def match_pattern(patterns, to_process):
+    for pattern in reversed(patterns):
+        devided_symbol = string_analyzier(pattern)
+        regular_pattern = generator_regular_pattern(devided_symbol)
+        print(regular_pattern)
+        match = re.match(regular_pattern, to_process)
+        if match:
+            print(pattern)
+            return pattern
+    return patterns[-1]
+
+
+def generator_regular_pattern(devided_symbol):
+    result = r".*?"
+    for symbol in devided_symbol:
+        result += re.escape(symbol) + r".*?"
+    return result
