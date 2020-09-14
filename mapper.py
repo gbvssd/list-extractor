@@ -56,7 +56,6 @@ def select_mapping(resDict, res, lang, res_class, g):
 
     :return: number of list elements actually mapped in the graph.
     """
-
     # use globally defined dicts
     global mapped_domains
     global resource_class
@@ -1601,9 +1600,7 @@ def wikidataAPI_call(res, lang):
     # print(req)
     try:
         call = urllib.request.Request(req)
-        print("finish request")
         resp = urllib.request.urlopen(call)
-        print("finish open")
         answer = resp.read()
         parsed_ans = json.loads(answer)
         result = parsed_ans['search']
@@ -1702,7 +1699,6 @@ def italic_mapper(list_elem):
     if match_italic:
         match_italic = match_italic.group(0)
         match_italic = list_elem_clean(match_italic)
-    print("italic mapper")
     print(match_italic)
     return match_italic
 

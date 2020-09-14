@@ -24,9 +24,13 @@ def evaluate_val():
     total_number = 0
     val_number = 0
     for subject, predicate, objection in g:
-        if "http://dbpedia.org/ontology/birthDate" not in predicate \
-                and "http://dbpedia.org/ontology/deathDate" not in predicate \
-                and "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" not in predicate:
+        if "http://dbpedia.org/ontology/birthDate" \
+                not in predicate \
+                and "http://dbpedia.org/ontology/deathDate" \
+                not in predicate \
+                and "http://www.w3.org/1999/02/" \
+                    "22-rdf-syntax-ns#type" \
+                not in predicate:
             print(predicate)
             total_number += 1
             if "http://" in objection:
@@ -95,26 +99,29 @@ def evaluate_cor():
             if results:
                 res = results[0]
                 date = res['date']['value']
-                print("-----------------------------")
-                print("subject is " + subject)
-                print("Date in graph is " + objection)
-                print("Date in DBpedia is " + date)
-                print("-----------------------------")
                 if "YearMonth" in objection.n3():
                     if objection.split("-")[0] == date.split("-")[0] and objection.split("-")[1] == date.split("-")[1]:
                         date_correct += 1
                         continue
+                    else:
+                        print("-----------------------------")
+                        print("subject is " + subject)
+                        print("Date in graph is " + objection)
+                        print("Date in DBpedia is " + date)
+                        print("-----------------------------")
                 elif "Year" in objection.n3():
                     if objection.split("-")[0] == date.split("-")[0]:
                         date_correct += 1
                         continue
+                    else:
+                        print("-----------------------------")
+                        print("subject is " + subject)
+                        print("Date in graph is " + objection)
+                        print("Date in DBpedia is " + date)
+                        print("-----------------------------")
             else:
                 date_correct += 1
         if "Place" in predicate:
-
-            print("-----------------------------")
-            print("subject is " + subject)
-            print("location in graph is " + objection)
             location_element += 1
             type_query = "select distinct ?location where {<" + subject + "> " + "<" + predicate + "> ?location}"
             answer = sparql_query(type_query, "de")
@@ -122,12 +129,16 @@ def evaluate_cor():
             if results:
                 for res in results:
                     location_uri = res['location']['value']
-                    print("location in DBpeida is " + location_uri)
-                    print("-----------------------------")
                     if location_uri in objection:
                         location_correct += 1
                         print("location match")
                         break
+                    else:
+                        print("-----------------------------")
+                        print("subject is " + subject)
+                        print("location in graph is " + objection)
+                        print("location in DBpeida is " + location_uri)
+                        print("-----------------------------")
             else:
                 location_correct += 1
     print("date correct is" + str(date_correct) + "/" + str(date_element))

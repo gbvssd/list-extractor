@@ -203,6 +203,7 @@ def map_person_list(elem_list, lang, g, elems, pattern):
                 name = match.group(0)
                 name = name.split("(", 1)[0]
                 name = name.split(",", 1)[0]
+                name = name.replace("\u2013", "")
                 name = name.strip()
                 name = name.replace(" ", "_")
                 name = name.replace("{{", "")

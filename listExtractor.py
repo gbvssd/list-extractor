@@ -94,6 +94,7 @@ def main():
         # Asks the endpoint for a list of types/classes associated to the resource
         if args.classname is None:
             rdf_type = utilities.get_resource_type(args.language, resource)
+            print(rdf_type)
         else:
             rdf_type = [classes.strip() for classes in args.classname.split(',')]
             # print rdf_type

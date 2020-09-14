@@ -139,7 +139,7 @@ def main():
             elif run == 2:
                 add_pattern()
             elif run == 3:
-                Analyzier.group_process()
+                print(Analyzier.group_process())
             elif run == 4:
                 delete_pattern()
             elif run == 0:
